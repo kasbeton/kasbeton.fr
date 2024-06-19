@@ -1,0 +1,79 @@
+import math
+
+# Définition de la taille maximale des morceaux
+TAILLE_MAX_MORCEAU = 0.6
+
+def pgcd(a, b):
+    """Calcul du Plus Grand Commun Diviseur (PGCD)"""
+    while b:
+        a, b = b, a % b
+    return a
+
+def calculer_taille_optimale_morceau(longueur, largeur):
+    """Calcul de la taille optimale des morceaux en fonction de la longueur et de la largeur"""
+    pgcd_longueur_largeur = pgcd(longueur, largeur)
+    longueur_optimale = longueur // pgcd_longueur_largeur
+    largeur_optimale = largeur // pgcd_longueur_largeur
+    
+    # Limiter la taille optimale à TAILLE_MAX_MORCEAU
+    if longueur_optimale > TAILLE_MAX_MORCEAU:
+        longueur_optimale = TAILLE_MAX_MORCEAU
+    if largeur_optimale > TAILLE_MAX_MORCEAU:
+        largeur_optimale = TAILLE_MAX_MORCEAU
+    
+    return longueur_optimale, largeur_optimale
+
+def calculer_metre_lineaire_total(longueur, largeur, epaisseur, prix_metre_lineaire, longueur_morceau, largeur_morceau):
+    """Calcul du mètre linéaire total des découpes et du prix total"""
+    nombre_morceaux_longueur = math.ceil(longueur / longueur_morceau)
+    nombre_morceaux_largeur = math.ceil(largeur / largeur_morceau)
+
+    nombre_lignes_longueur = nombre_morceaux_longueur + 1
+    nombre_lignes_largeur = nombre_morceaux_largeur + 1
+
+    metre_lineaire_total = ((nombre_lignes_longueur * largeur) + (nombre_lignes_largeur * longueur))
+
+    prix_total = metre_lineaire_total * prix_metre_lineaire
+
+    return metre_lineaire_total, prix_total
+
+def saisir_float(message):
+    """Fonction pour saisir une valeur float positive"""
+    while True:
+        try:
+            valeur = float(input(message))
+            if valeur <= 0:
+                raise ValueError("La valeur doit être positive.")
+            return valeur
+        except ValueError:
+            print("Veuillez saisir une valeur numérique positive.")
+
+# Demander à l'utilisateur de saisir les dimensions et autres informations
+print("Veuillez saisir les dimensions de l'ouverture :")
+longueur = saisir_float("Longueur (en mètres) : ")
+largeur = saisir_float("Largeur (en mètres) : ")
+epaisseur = saisir_float("Épaisseur de la dalle/mur (en mètres) : ")
+prix_metre_lineaire = saisir_float("Prix au mètre linéaire (en euros) : ")
+
+# Calculer la taille optimale des morceaux
+longueur_optimale, largeur_optimale = calculer_taille_optimale_morceau(longueur, largeur)
+
+# Demander à l'utilisateur s'il veut utiliser la taille optimale
+utiliser_taille_optimale = input(f"Voulez-vous utiliser la taille optimale des morceaux ({longueur_optimale}m x {largeur_optimale}m) ? (Oui/Non) : ")
+
+if utiliser_taille_optimale.lower() == 'oui' or utiliser_taille_optimale == '':
+    longueur_morceau = longueur_optimale
+    largeur_morceau = largeur_optimale
+else:
+    longueur_morceau = saisir_float("Entrez la longueur des morceaux de béton (en mètres) : ")
+    largeur_morceau = saisir_float("Entrez la largeur des morceaux de béton (en mètres) : ")
+
+# Calculer le mètre linéaire total et le prix total
+metre_lineaire_total, prix_total = calculer_metre_lineaire_total(longueur, largeur, epaisseur, prix_metre_lineaire, longueur_morceau, largeur_morceau)
+
+# Afficher les résultats
+print(f"\nLe mètre linéaire total des découpes de murs porteurs est de : {metre_lineaire_total} mètres")
+print(f"Le prix total pour ces découpes est de : {prix_total} euros")
+
+# Demander à l'utilisateur d'appuyer sur Entrée pour quitter
+input("\nAppuyez sur Entrée pour quitter...")
